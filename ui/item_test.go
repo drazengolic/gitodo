@@ -14,10 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package ui
 
-import "github.com/drazengolic/gitodo/cmd"
+import "testing"
 
-func main() {
-	cmd.Execute()
+func TestGetStashTimestamp(t *testing.T) {
+	expected := "Tue Jan 14 19:13:06 2025"
+
+	item := todoItem{stash: "stash@{Tue Jan 14 19:13:06 2025}: On master: gitodo_7"}
+
+	if s := item.getStashTimestamp(); s != expected {
+		t.Errorf("not equal, got %s", s)
+	}
+
+	item.stash = "stash@{Tue Jan 14 19:13:06 2025}"
+	if s := item.getStashTimestamp(); s != expected {
+		t.Errorf("not equal, got %s", s)
+	}
+
+	item.stash = ""
+	if s := item.getStashTimestamp(); s != "" {
+		t.Errorf("not equal, got %s", s)
+	}
 }

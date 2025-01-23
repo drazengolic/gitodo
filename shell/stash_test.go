@@ -14,10 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package shell
 
-import "github.com/drazengolic/gitodo/cmd"
+import (
+	"maps"
+	"testing"
+)
 
-func main() {
-	cmd.Execute()
+func TestParseStashList(t *testing.T) {
+	sample := `stash@{Tue Jan 09 10:11:12 2025}: WIP on master: 04fd51c update docs
+stash@{Tue Jan 14 19:13:06 2025}: On master: gitodo_7
+stash@{Tue Jan 18 10:11:12 2025}: WIP on master: 04fd51c update docs`
+
+	expected := map[int]string{7: "stash@{Tue Jan 14 19:13:06 2025}"}
+	got := ParseStashList(sample)
+	cmp := maps.Equal(expected, got)
+
+	if !cmp {
+		t.Errorf("maps not equal. got: %v", got)
+	}
 }
