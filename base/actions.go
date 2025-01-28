@@ -36,6 +36,18 @@ func (tdb *TodoDb) TodoCount(projId int) int {
 	return 0
 }
 
+func (tdb *TodoDb) AddTodo(projId int, task string) (int, int) {
+	count := tdb.TodoCount(projId)
+	row := tdb.db.QueryRow(
+		`insert into todo (project_id, task, position) values ($1, $2, $3) returning todo_id`,
+		projId, task, count+1,
+	)
+
+	var id int
+	row.Scan(&id)
+	return id, count + 1
+}
+
 func (tdb *TodoDb) AddTodos(projId int, tasks []string) error {
 	count := tdb.TodoCount(projId)
 	insert := make([]map[string]any, len(tasks))
