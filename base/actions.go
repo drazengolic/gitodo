@@ -85,6 +85,20 @@ func (tdb *TodoDb) TodoItems(projId int, f func(t Todo)) error {
 	return nil
 }
 
+func (tdb *TodoDb) TodoWhat(projId int) *Todo {
+	sql := `select todo_id, project_id, task, position, created_at, done_at, commited_at 
+		from todo where project_id = $1 and done_at is null order by position limit 1`
+	row := tdb.db.QueryRowx(sql, projId)
+	todo := Todo{}
+	err := row.StructScan(&todo)
+
+	if err != nil {
+		return nil
+	}
+
+	return &todo
+}
+
 func (tdb *TodoDb) ChangePosition(todoId, from, to int) error {
 	sql := `update todo set position = case 
 		when todo_id = :todoId then :to
