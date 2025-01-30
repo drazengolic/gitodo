@@ -141,3 +141,8 @@ func (tdb *TodoDb) UpdateTask(todoId int, task string) error {
 	_, err := tdb.db.Exec("update todo set task=$1 where todo_id=$2", task, todoId)
 	return err
 }
+
+func (tdb *TodoDb) UpdateProjectName(projId int, name string) error {
+	_, err := tdb.db.Exec("update project set name=$1 where project_id=$2", name, projId)
+	return err
+}
