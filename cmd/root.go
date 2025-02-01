@@ -111,7 +111,7 @@ func MustInit() (*shell.DirEnv, *base.TodoDb) {
 
 func ExitOnError(err error, code int) {
 	if err != nil {
-		fmt.Printf("error: %v", err)
+		fmt.Printf("error: %s\n", err.Error())
 		os.Exit(code)
 	}
 }

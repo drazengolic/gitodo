@@ -1,5 +1,7 @@
 package base
 
+import "time"
+
 // FetchProjectId gets or creates a project for the given folder and branch
 // and returns the project id
 func (tdb *TodoDb) FetchProjectId(folder, branch string) int {
@@ -69,6 +71,39 @@ func (tdb *TodoDb) TodoItems(projId int, f func(t Todo)) error {
 	todo := Todo{}
 	rows, err := tdb.db.Queryx(`select todo_id, project_id, task, position, created_at, done_at, commited_at 
 		from todo where project_id = $1 order by position`, projId)
+
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		err = rows.StructScan(&todo)
+		if err != nil {
+			return err
+		}
+		f(todo)
+	}
+
+	return nil
+}
+
+func (tdb *TodoDb) TodoItemsForCommit(projId int, previous bool, f func(t Todo)) error {
+	todo := Todo{}
+	sql := `select todo_id, project_id, task, position, created_at, done_at, commited_at 
+		from todo where project_id = :projId and done_at is not null`
+
+	if previous {
+		sql += ` and (commited_at = (select max(commited_at) from todo where project_id=:projId)
+		or commited_at is null)`
+	} else {
+		sql += " and commited_at is null"
+	}
+
+	sql += " order by position"
+
+	rows, err := tdb.db.NamedQuery(sql, map[string]any{
+		"projId": projId,
+	})
 
 	if err != nil {
 		return err
@@ -172,5 +207,22 @@ func (tdb *TodoDb) UpdateTask(todoId int, task string) error {
 
 func (tdb *TodoDb) UpdateProjectName(projId int, name string) error {
 	_, err := tdb.db.Exec("update project set name=$1 where project_id=$2", name, projId)
+	return err
+}
+
+func (tdb *TodoDb) SetItemsCommited(projId int, previous bool) error {
+	sql := `update todo set commited_at=:ts where project_id=:projId and done_at is not null`
+
+	if previous {
+		sql += ` and (commited_at = (select max(commited_at) from todo where project_id=:projId)
+		or commited_at is null)`
+	} else {
+		sql += " and commited_at is null"
+	}
+
+	_, err := tdb.db.NamedExec(sql, map[string]any{
+		"projId": projId,
+		"ts":     time.Now().Format(time.DateTime),
+	})
 	return err
 }

@@ -167,3 +167,7 @@ func (tf *TmpFile) ReadItems() ([]string, error) {
 
 	return items, nil
 }
+
+func (tf *TmpFile) Path() string {
+	return tf.path
+}
