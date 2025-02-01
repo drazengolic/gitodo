@@ -115,10 +115,38 @@ func (tdb *TodoDb) ChangePosition(todoId, from, to int) error {
 	return err
 }
 
+// MoveTodo moves an item to another project and updates positions
 func (tdb *TodoDb) MoveTodo(todoId, projId int) error {
 	count := tdb.TodoCount(projId)
-	_, err := tdb.db.Exec(`update todo set project_id=$1, position=$2 where todo_id=$3`, projId, count+1, todoId)
-	return err
+
+	tx, err := tdb.db.Beginx()
+
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// update positions first
+	_, err = tx.Exec(`with my_item as (
+		select project_id, position from todo
+		where todo_id=$1
+	)
+	update todo set position=position-1
+	where project_id = (select project_id from my_item limit 1)
+	and position > (select position from my_item limit 1)`, todoId)
+
+	if err != nil {
+		return err
+	}
+
+	// move
+	_, err = tx.Exec(`update todo set project_id=$1, position=$2 where todo_id=$3`, projId, count+1, todoId)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 func (tdb *TodoDb) TodoDone(todoId int, done bool) error {
