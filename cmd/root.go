@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Drazen Golic
+Copyright © 2024 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/drazengolic/gitodo/base"
 	"github.com/drazengolic/gitodo/shell"
 	"github.com/drazengolic/gitodo/ui"
@@ -75,6 +76,7 @@ no yaml files needed.`,
 }
 
 var projectBranch string
+var redText = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000"))
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -86,15 +88,7 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&projectBranch, "branch", "", "branch name to use")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // MustInit collects data and creates instances necessary for the app to function
@@ -111,7 +105,29 @@ func MustInit() (*shell.DirEnv, *base.TodoDb) {
 
 func ExitOnError(err error, code int) {
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+		fmt.Println(err.Error())
 		os.Exit(code)
+	}
+}
+
+func HandleTimerError(err error) {
+	if err != nil {
+		switch e := err.(type) {
+		case *base.TimerError:
+			fmt.Println(err.Error())
+		case *base.TimerRunningElsewhereError:
+			format := `there is a timer running for another project!
+
+repository: %q
+branch: %s
+duration: %s
+
+To continue, please cd/checkout to the given repository/branch,
+or type "gitodo stop" (in any directory) to stop the active timer.`
+			fmt.Println(redText.Render(fmt.Sprintf(format, e.Proj.Folder, e.Proj.Branch, e.Entry.Duration())))
+		default:
+			fmt.Println(redText.Render(e.Error()))
+		}
+		os.Exit(1)
 	}
 }

@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 Drazen Golic
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@ type DirEnv struct {
 func GetDirEnv() (*DirEnv, error) {
 	revOutput, err := exec.Command("git", "rev-parse", "--show-toplevel", "--abbrev-ref", "HEAD").Output()
 	if err != nil {
-		switch err.(type) {
+		switch e := err.(type) {
 		case *exec.Error:
 			return nil, errors.New("git must be installed in order to use the application.")
 		case *exec.ExitError:
-			return nil, errors.New(string(revOutput))
+			return nil, errors.New(string(e.Stderr))
 		default:
 			return nil, err
 		}
