@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Drazen Golic <drazen@fastmail.com>
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,26 +19,27 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/drazengolic/gitodo/base"
 	"github.com/spf13/cobra"
 )
-
-var strikeTroughStyle = lipgloss.NewStyle().Strikethrough(true)
-var greenTextStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00"))
 
 // doneCmd represents the done command
 var doneCmd = &cobra.Command{
 	Use:   "done",
-	Short: "Sets the first available to-do item to done",
-	Long: `Sets the first available to-do item to done and outputs the next
-to-do item if found.
+	Short: "Set the first available to-do item to done",
+	Long: `
+Set the first available to-do item to done and output the next to-do item if
+found.
 
-If there are no items to be done, the "All done!" message is shown.`,
+If there are no items to be done, the "All done!" message is shown.
+
+If there is a timer running, it will display the session time at the moment of
+the command execution.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, env.Branch)
 
-		_, err := tdb.CheckTimer(projId)
+		te, err := tdb.CheckTimer(projId)
 		HandleTimerError(err)
 
 		item := tdb.TodoWhat(projId)
@@ -57,7 +58,11 @@ If there are no items to be done, the "All done!" message is shown.`,
 			fmt.Println(greenTextStyle.Render("All done!"))
 			return
 		} else {
-			fmt.Printf("Up next: %s\n", nextItem.Task)
+			fmt.Printf("%s\n%s\n", boldText.Render("Up next:"), nextItem.Task)
+		}
+
+		if te != nil && te.ProjectId == projId && te.Action == base.TimesheetActionStart {
+			fmt.Printf("\n%s\n", orangeText.Render("Timer running for "+base.FormatSeconds(te.Duration())))
 		}
 	},
 }

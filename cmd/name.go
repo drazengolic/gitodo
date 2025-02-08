@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Drazen Golic
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,15 +24,19 @@ import (
 
 // nameCmd represents the name command
 var nameCmd = &cobra.Command{
-	Use:   "name",
-	Short: "Displays or sets the name for your to-do project.",
-	Long: `Displays or sets the name for your to-do project.
+	Use:   "name [name]",
+	Short: "Display or set the name for your to-do branch.",
+	Long: `
+Display or set the name for your to-do branch.
 
-The name defaults to the active branch. 
+The name defaults to the active branch. If a custom name is set (i.e. the 
+title of a board ticket), it will be displayed across the application along
+with the branch name.
 
-When no argument is given, the command will output the current name. 
-If there are arguments provided, the first one will be used to set
-the project name.`,
+When no argument is given, the command will output the current name.
+
+If there are arguments provided, the first one will be used to set the project
+name (no text join will happen, so make sure to use quotes).`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		proj := tdb.GetProject(tdb.FetchProjectId(env.ProjDir, env.Branch))

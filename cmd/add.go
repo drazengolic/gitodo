@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Drazen Golic <drazen@fastmail.com>
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,13 +26,16 @@ import (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Adds to-do items for the current branch",
-	Long: `Adds to-do items for the current branch.
+	Short: "Add to-do items for the current branch",
+	Long: `
+Add to-do items for the current branch.
 
-Invoking without arguments will open up the editor for multiple items to be added.
+Invoking without arguments will open up the editor for multiple items to be 
+added. If there are arguments, all of them will be joined into a single to-do
+item.
 
-If there are arguments, all of them will be joined into a single to-do item. 
-If the flag -t is provided, the item will be placed at the top of the list.`,
+If the flag -t is provided, the new item will be placed at the top of the 
+list.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, env.Branch)

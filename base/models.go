@@ -46,6 +46,11 @@ type TimeEntry struct {
 	CreatedAt string `db:"created_at"`
 }
 
+type ItemAndBranch struct {
+	ItemName   string `db:"item_name"`
+	BranchName string `db:"branch_name"`
+}
+
 const (
 	TimesheetActionStart int = iota + 1
 	TimesheetActionStop

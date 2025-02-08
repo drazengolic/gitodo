@@ -27,13 +27,17 @@ import (
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Starts a timer for the given repository+branch",
-	Long: `gitodo can also do time tracking for the given branch.
+	Short: "Start a timer for the active branch",
+	Long: `
+Start a timer for the active branch. Where possible, an OS notification will
+be displayed.
 
-Executing "start" will start the timer. Where possible,
-an OS notification will be displayed.
+If the timer is already running, an error will be displayed.
 
-If the timer is already running, an error will be displayed.`,
+NOTE: only one timer can be active at any point in time! If a timer is active,
+and you try to make changes on a repository/branch other than the one that
+timer is running for, you'll have to stop it before you proceed with the 
+changes. Only "queue" command is allowed.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, env.Branch)

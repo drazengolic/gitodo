@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Drazen Golic <drazen@fastmail.com>
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,13 +31,14 @@ var changelistCmd = &cobra.Command{
 	Use:     "changelist",
 	Aliases: []string{"cl"},
 	Short:   "Display to-do items as a changelist",
-	Long: `Displays to-do items as a changelist usable in markdown documents.
+	Long: `
+Display to-do items as a changelist usable in markdown documents.
 
-By default, it displays only the completed items. If --all flag is set,
-all items will be displayed in the form of a GitHub task list.
+By default, it displays only the completed items. If --all flag is set, all
+items will be displayed in the form of a GitHub task list.
 
-A pager will be used where available. If using a pager is not desirable, 
-set the --no-pager flag.`,
+A pager will be used where available. If using a pager is not desirable, set
+the --no-pager flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		all := cmd.Flags().Changed("all")

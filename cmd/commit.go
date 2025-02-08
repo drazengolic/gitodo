@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Dražen Golić
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,22 +30,23 @@ import (
 var commitCmd = &cobra.Command{
 	Use:                "commit [git flags]",
 	DisableFlagParsing: true,
-	Short:              "Runs a git commit with prepared message",
-	Long: `commit runs a git commit with a prepared message based on the completed 
-to-do items that will also be marked as commited if the commit is successful.
+	Short:              "Run a git commit with a prepared message",
+	Long: `
+Run "git commit" with a prepared message based on the completed to-do items
+that will also be marked as commited if the commit was successful.
 
-Items that are previously marked as committed will not be included in the message
-unless "--amend" flag is provided.
+Items that are previously marked as committed will not be included in the 
+message unless "--amend" flag is provided.
 
 By default, the command will execute "git commit -eF msgfile", and any 
-additional arguments or flags passed to this command will be appended 
-to the base "git commit" command.
+additional arguments or flags passed to this command will be appended to the
+base command.
 
 Special flag handling:
 
  - if "--amend" flag is passed to commit, the msgfile will contain all of the
-   completed to-do items that either aren't flagged as committed, or they
-   were flagged as committed in the previously executed commit.
+   completed to-do items that either aren't flagged as committed, or they were
+   flagged as committed in the previously executed commit.
 
  - if "--no-edit" is passed together with "--amend", no message will be 
    generated and "-eF" will be left out

@@ -29,12 +29,14 @@ import (
 // stopCmd represents the stop command
 var stopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Stops the timer from anywhere",
-	Long: `If there is a timer running, it will be stopped with the "stop" command.
+	Short: "Stop the timer from anywhere",
+	Long: `
+Stop the running timer.
 
-The command can be run from anywhere, it is not required
-to be in the same repository or at the same branch
-where the timer has started.`,
+The command can be executed from anywhere, it is not required to be in the
+same repository or at the same branch where the timer has started.
+
+And error is displayed if no timer is running.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		tdb, err := base.NewTodoDb()
 		ExitOnError(err, 1)

@@ -32,9 +32,8 @@ var rootCmd = &cobra.Command{
 	Use:   "gitodo",
 	Short: "The stupid to-do list application for git projects",
 	Long: `
-gitodo is a to-do list companion for git projects
-that ties to-do items to git repositories and branches
-without storing any files in the repositories.
+gitodo is a to-do list companion for git projects that ties to-do items to git 
+repositories and branches without storing any files in the actual repositories.
 
 A minimalist tool that helps the busy developers to:
  - keep track of what they've done and what they need
@@ -46,8 +45,22 @@ A minimalist tool that helps the busy developers to:
  - track time
  - view reports
 
-All configuration is read from git and the environment, 
-no yaml files needed.`,
+All configuration is read from git and the environment, no yaml files needed.
+
+Running the application without arguments will either:
+  - open up the editor to add items if none are found
+  - open a TUI screen where to-do items can be managed
+
+The invoked editor will be the same one that git invokes.
+
+To-do items do not have a priority. The top-most item should be always the one 
+with the top priority, and commands like "what" and "done" read items from top
+to bottom. Use the TUI screen to change the order of the items.
+
+When stashing changes for an item, the "--include-untracked" flag will be 
+passed to git, so if you don't want to have some untracked files to be stashed,
+make sure to add them to .gitignore file or move them somewhere else. 
+  `,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
@@ -78,8 +91,19 @@ no yaml files needed.`,
 	},
 }
 
-var projectBranch string
-var redText = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000"))
+var (
+	projectBranch string
+	redText       = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000"))
+	orangeText    = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#ff7500", Dark: "#ffa500"})
+	dimmedText = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#777777"))
+	blueText = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "12", Dark: "86"})
+	strikeTroughStyle = lipgloss.NewStyle().Strikethrough(true)
+	greenTextStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00"))
+	boldText          = lipgloss.NewStyle().Bold(true)
+)
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
@@ -92,6 +116,7 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&projectBranch, "branch", "", "branch name to use")
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 
 // MustInit collects data and creates instances necessary for the app to function

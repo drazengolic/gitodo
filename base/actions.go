@@ -1,6 +1,26 @@
+/*
+Copyright © 2025 Dražen Golić
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package base
 
-import "time"
+import (
+	"time"
+
+	"github.com/jmoiron/sqlx"
+)
 
 // FetchProjectId gets or creates a project for the given folder and branch
 // and returns the project id
@@ -225,4 +245,23 @@ func (tdb *TodoDb) SetItemsCommited(projId int, previous bool) error {
 		"ts":     time.Now().Format(time.DateTime),
 	})
 	return err
+}
+
+func (tdb *TodoDb) GetItemsAndBranch(ids []int) ([]*ItemAndBranch, error) {
+	var resultSet []*ItemAndBranch
+	q, args, err := sqlx.In(
+		`select t.task as item_name, p.branch as branch_name from todo t natural join project p 
+		where t.todo_id in (?) order by p.project_id desc, t.created_at desc`, ids)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = tdb.db.Select(&resultSet, tdb.db.Rebind(q), args...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return resultSet, nil
 }

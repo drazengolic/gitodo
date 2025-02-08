@@ -26,15 +26,16 @@ import (
 // addCmd represents the add command
 var queueCmd = &cobra.Command{
 	Use:   "queue",
-	Short: "Adds to-do items to the repository queue",
-	Long: `Adds to-do items to the repository queue.
+	Short: "Add to-do items to the repository queue",
+	Long: `
+Add to-do items to the repository queue.
 
-Queue is not an active to-do list, but a list of things 
-you'd like to take on later, perhaps in another branch.
+Queue is not an active to-do list, but a list of things you'd like to take on
+later, perhaps in another branch.
 
-Invoking without arguments will open up the editor for multiple items to be added.
-
-If there are arguments, all of them will be joined into a single to-do item.`,
+Invoking without arguments will open up the editor for multiple items to be 
+added. If there are arguments, all of them will be joined into a single to-do
+item.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, "*")

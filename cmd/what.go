@@ -20,17 +20,25 @@ import (
 	"fmt"
 
 	"github.com/drazengolic/gitodo/base"
+	"github.com/drazengolic/gitodo/shell"
 	"github.com/spf13/cobra"
 )
 
 // whatCmd represents the what command
 var whatCmd = &cobra.Command{
-	Use:   "what",
-	Short: "Displays what's next to do",
-	Long: `Displays the first to-do item that isn't completed yet,
-starting from the top of the list.
+	Use:     "what",
+	Aliases: []string{"status"},
+	Short:   "Display what's next to do",
+	Long: `
+Display the first to-do item that isn't completed yet, starting from the top
+of the list.
 
-If there is no such item, "All done!" message will be shown.`,
+If there is no such item, "All done!" message will be shown.
+
+If there is a timer running, it will display the session time at the moment of
+the command execution. Also, if there are stashed changes assigned to any of
+the to-do items in the repository, the full list will be printed, organized by
+the branch name.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		proj := tdb.GetProject(tdb.FetchProjectId(env.ProjDir, env.Branch))
@@ -38,18 +46,43 @@ If there is no such item, "All done!" message will be shown.`,
 		te, err := tdb.CheckTimer(proj.Id)
 		HandleTimerError(err)
 
-		fmt.Printf("On: %s\n\n", proj.Name)
+		fmt.Printf("%s\n\n", blueText.Render(proj.Name))
 
 		item := tdb.TodoWhat(proj.Id)
 
 		if item == nil {
-			fmt.Println("All done!")
+			fmt.Println(greenTextStyle.Render("All done!"))
 		} else {
-			fmt.Printf("What to do: %s\n", item.Task)
+			fmt.Printf("%s\n%s\n", boldText.Render("To do:"), item.Task)
 		}
 
 		if te != nil && te.ProjectId == proj.Id && te.Action == base.TimesheetActionStart {
-			fmt.Printf("\nTimer running for %s\n", base.FormatSeconds(te.Duration()))
+			fmt.Printf("\n%s\n", orangeText.Render("Timer running for "+base.FormatSeconds(te.Duration())))
+		}
+
+		stash, err := shell.GetStashItems()
+		ExitOnError(err, 1)
+
+		if len(stash) == 0 {
+			return
+		}
+
+		ids := make([]int, 0, len(stash))
+		for k := range stash {
+			ids = append(ids, k)
+		}
+
+		ibs, err := tdb.GetItemsAndBranch(ids)
+		ExitOnError(err, 1)
+
+		fmt.Printf("\n%s\n\n", dimmedText.Render("Items with stash:"))
+		currBranch := ""
+		for _, ib := range ibs {
+			if ib.BranchName != currBranch {
+				fmt.Println(dimmedText.Render(ib.BranchName))
+				currBranch = ib.BranchName
+			}
+			fmt.Printf("  %s\n", dimmedText.Render("- "+ib.ItemName))
 		}
 	},
 }

@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 Drazen Golic
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ var (
 
 	timerStoppedStyle = lipgloss.NewStyle().
 				Background(lipgloss.AdaptiveColor{Light: "#000000", Dark: "#777777"}).
-				Foreground(lipgloss.AdaptiveColor{Light: "#777777", Dark: "#000000"})
+				Foreground(lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#000000"})
 )
 
 func init() {
