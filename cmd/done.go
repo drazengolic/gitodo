@@ -38,6 +38,9 @@ If there are no items to be done, the "All done!" message is shown.`,
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, env.Branch)
 
+		_, err := tdb.CheckTimer(projId)
+		HandleTimerError(err)
+
 		item := tdb.TodoWhat(projId)
 
 		if item == nil {

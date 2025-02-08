@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Dražen Golić
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ If the timer is already running, an error will be displayed.`,
 		_, err := tdb.StartTimer(projId)
 		HandleTimerError(err)
 
-		msg := fmt.Sprintf("timer started on %s", time.Now().Format(time.ANSIC))
+		msg := fmt.Sprintf("Timer started on %s", time.Now().Format(time.ANSIC))
 		fmt.Println(msg)
 		beeep.Alert("gitodo", msg, "")
 	},

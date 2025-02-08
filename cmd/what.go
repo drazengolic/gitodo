@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Drazen Golic <drazen@fastmail.com>
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/drazengolic/gitodo/base"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +35,9 @@ If there is no such item, "All done!" message will be shown.`,
 		env, tdb := MustInit()
 		proj := tdb.GetProject(tdb.FetchProjectId(env.ProjDir, env.Branch))
 
+		te, err := tdb.CheckTimer(proj.Id)
+		HandleTimerError(err)
+
 		fmt.Printf("On: %s\n\n", proj.Name)
 
 		item := tdb.TodoWhat(proj.Id)
@@ -42,6 +46,10 @@ If there is no such item, "All done!" message will be shown.`,
 			fmt.Println("All done!")
 		} else {
 			fmt.Printf("What to do: %s\n", item.Task)
+		}
+
+		if te != nil && te.ProjectId == proj.Id && te.Action == base.TimesheetActionStart {
+			fmt.Printf("\nTimer running for %s\n", base.FormatSeconds(te.Duration()))
 		}
 	},
 }

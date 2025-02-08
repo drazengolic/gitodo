@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Dražen Golić
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -54,6 +54,9 @@ no yaml files needed.`,
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, env.Branch)
 		count := tdb.TodoCount(projId)
+
+		_, err := tdb.CheckTimer(projId)
+		HandleTimerError(err)
 
 		if count == 0 {
 			tmpfile, err := shell.NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
@@ -116,15 +119,15 @@ func HandleTimerError(err error) {
 		case *base.TimerError:
 			fmt.Println(err.Error())
 		case *base.TimerRunningElsewhereError:
-			format := `there is a timer running for another project!
+			format := `There is a timer running for another project!
 
-repository: %q
-branch: %s
-duration: %s
+Repository: %q
+Branch: %s
+Duration: %s
 
 To continue, please cd/checkout to the given repository/branch,
 or type "gitodo stop" (in any directory) to stop the active timer.`
-			fmt.Println(redText.Render(fmt.Sprintf(format, e.Proj.Folder, e.Proj.Branch, e.Entry.Duration())))
+			fmt.Println(redText.Render(fmt.Sprintf(format, e.Proj.Folder, e.Proj.Branch, base.FormatSeconds(e.Entry.Duration()))))
 		default:
 			fmt.Println(redText.Render(e.Error()))
 		}

@@ -37,6 +37,9 @@ If the flag -t is provided, the item will be placed at the top of the list.`,
 		env, tdb := MustInit()
 		projId := tdb.FetchProjectId(env.ProjDir, env.Branch)
 
+		_, err := tdb.CheckTimer(projId)
+		HandleTimerError(err)
+
 		if len(args) > 0 {
 			id, pos := tdb.AddTodo(projId, strings.Join(args, " "))
 			if cmd.Flags().Changed("top") {

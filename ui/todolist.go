@@ -22,6 +22,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -61,6 +62,14 @@ var (
 
 	orangeText = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#ff7500", Dark: "#ffa500"})
+
+	timerStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("#ff0000")).
+			Foreground(lipgloss.Color("#ffffff"))
+
+	timerStoppedStyle = lipgloss.NewStyle().
+				Background(lipgloss.AdaptiveColor{Light: "#000000", Dark: "#777777"}).
+				Foreground(lipgloss.AdaptiveColor{Light: "#777777", Dark: "#000000"})
 )
 
 func init() {
@@ -74,6 +83,8 @@ type opDelTodoItem int
 type opDelQueueItem int
 type opPushStash int
 type opPopStash int
+
+type TickMsg time.Time
 
 // model is a structure that represents the state of the entire ui app
 type model struct {
@@ -94,6 +105,8 @@ type model struct {
 	screenWidth  int
 	screenHeight int
 	showTodoId   bool
+	timeTotal    int
+	timerActive  bool
 }
 
 // initialModel creates the initial model from the data and the environment
@@ -142,6 +155,13 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 		os.Exit(1)
 	}
 
+	timeTotal, err := db.GetProjectTime(todoProjId)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
 	cursor := 0
 	for i, t := range todoItems {
 		if !t.done {
@@ -150,7 +170,7 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 		}
 	}
 
-	return model{
+	model := model{
 		todoItems:   todoItems,
 		queueItems:  queueItems,
 		mode:        ModeTodoItems,
@@ -160,10 +180,21 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 		env:         env,
 		db:          db,
 		showHelp:    false,
+		timeTotal:   timeTotal,
 	}
+
+	te := db.GetLatestTimeEntry()
+	if te != nil && te.ProjectId == proj.Id && te.Action == base.TimesheetActionStart {
+		model.timerActive = true
+	}
+
+	return model
 }
 
 func (m model) Init() tea.Cmd {
+	if m.timerActive {
+		return doTick()
+	}
 	return nil
 }
 
@@ -174,6 +205,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	)
 
 	switch msg := msg.(type) {
+
+	case TickMsg:
+		m.timeTotal++
+		return m, doTick()
 
 	case tea.KeyMsg:
 
@@ -594,6 +629,19 @@ func (m model) headerView() string {
 	b.WriteString(dimmedStyle.Render(strings.Repeat("─", linew/2+linew%2)))
 	b.WriteRune('\n')
 
+	if m.timeTotal > 0 || m.timerActive {
+		timew := m.viewport.Width - 8
+		secs := base.FormatSeconds(m.timeTotal)
+		b.WriteString(strings.Repeat(" ", timew/2))
+		if m.timerActive {
+			b.WriteString(timerStyle.Render(secs))
+		} else {
+			b.WriteString(timerStoppedStyle.Render(secs))
+		}
+
+		b.WriteString(strings.Repeat(" ", timew/2+timew%2))
+	}
+
 	return b.String()
 }
 
@@ -683,24 +731,38 @@ func (m model) footerView() string {
 // getHeaderHeight calculates header height from the state
 // because lipgloss.Height is not reliable
 func (m model) getHeaderHeight() int {
+	var h int
 	if m.proj.Name == "" || m.proj.Name == m.proj.Branch {
-		return 2
+		h = 2
 	}
 
-	return (len([]rune(m.proj.Name))-2)/m.screenWidth + 3
+	h = (len([]rune(m.proj.Name))-2)/m.screenWidth + 3
+
+	if m.timeTotal > 0 || m.timerActive {
+		h += 1
+	}
+
+	return h
 }
 
 // getHeaderHeight calculates footer height from the state
 // because lipgloss.Height is not reliable
 func (m model) getFooterHeight() int {
+	var h int
 	switch {
 	case m.showHelp && m.mode == ModeTodoItems:
-		return 7
+		h = 7
 	case m.showHelp && m.mode == ModeQueue:
-		return 6
+		h = 6
 	default:
-		return 2
+		h = 2
 	}
+
+	if m.timeTotal > 0 || m.timerActive {
+		h -= 1
+	}
+
+	return h
 }
 
 // updateHeight updates the height of the viewport
@@ -719,6 +781,12 @@ func (m *model) stateMode(mode int) {
 	}
 	m.errorMsg = ""
 	m.updateHeight()
+}
+
+func doTick() tea.Cmd {
+	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+		return TickMsg(t)
+	})
 }
 
 // RunTodoListUI creates and runs the bubbletea program

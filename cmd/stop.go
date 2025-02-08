@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Dražen Golić
+Copyright © 2025 Dražen Golić
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -46,13 +46,21 @@ where the timer has started.`,
 			os.Exit(1)
 		}
 
+		total, err := tdb.GetProjectTime(prev.ProjectId)
+
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		proj := tdb.GetProject(prev.ProjectId)
 		fmt.Printf(
-			"timer stopped on %s.\n\nrepository: %q\nbranch: %s\nduration: %s\n",
+			"Timer stopped on %s.\n\nRepository: %q\nBranch: %s\nDuration: %s\nTotal time: %s\n",
 			time.Now().Format(time.ANSIC),
 			proj.Folder,
 			proj.Branch,
-			prev.Duration(),
+			base.FormatSeconds(prev.Duration()),
+			base.FormatSeconds(total),
 		)
 		beeep.Alert("gitodo", "Timer stopped.", "")
 	},

@@ -65,6 +65,9 @@ Special flag handling:
 
 		proj := tdb.GetProject(tdb.FetchProjectId(env.ProjDir, env.Branch))
 
+		_, err := tdb.CheckTimer(proj.Id)
+		HandleTimerError(err)
+
 		if amend && noEdit {
 			err := runCommit(args)
 			ExitOnError(err, 1)

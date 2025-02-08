@@ -27,7 +27,7 @@ type TimerRunningElsewhereError struct {
 }
 
 func (e *TimerRunningElsewhereError) Error() string {
-	return fmt.Sprintf("timer running in %s [%s]!", e.Proj.Folder, e.Proj.Branch)
+	return fmt.Sprintf("Timer running in %s [%s]!", e.Proj.Folder, e.Proj.Branch)
 }
 
 type TimerError struct {
@@ -75,7 +75,7 @@ func (tdb *TodoDb) StartTimer(projId int) (*TimeEntry, error) {
 
 	if last != nil && last.Action == TimesheetActionStart {
 		t, _ := time.Parse(time.DateTime, last.CreatedAt)
-		return last, &TimerError{msg: "timer running since " + t.Format(time.ANSIC)}
+		return last, &TimerError{msg: "Timer running since " + t.Format(time.ANSIC)}
 	}
 
 	sql := `insert into timesheet (project_id, action) values ($1, $2) returning *`
@@ -96,11 +96,11 @@ func (tdb *TodoDb) StopTimer() (*TimeEntry, *TimeEntry, error) {
 	last := tdb.GetLatestTimeEntry()
 
 	if last == nil {
-		return nil, nil, &TimerError{msg: "timer is not running."}
+		return nil, nil, &TimerError{msg: "Timer is not running."}
 	}
 
 	if last.Action == TimesheetActionStop {
-		return nil, nil, &TimerError{msg: "timer is not running."}
+		return nil, nil, &TimerError{msg: "Timer is not running."}
 	}
 
 	sql := `insert into timesheet (project_id, action) values ($1, $2) returning *`
@@ -113,4 +113,22 @@ func (tdb *TodoDb) StopTimer() (*TimeEntry, *TimeEntry, error) {
 	}
 
 	return &ts, last, nil
+}
+
+// GetProjectTime calculates total amount of seconds recorded for the project,
+// including the ongoing time if the timer is active
+func (tdb *TodoDb) GetProjectTime(projId int) (int, error) {
+	// The first line sums the timestamps according to the action type.
+	// The second one adds the current time if the timer is running.
+	// Everything is multiplied with 86400 since the calculation is in
+	// the amount of days.
+	sql := `select round((
+		(select sum(case when action=1 then -julianday(created_at) else julianday(created_at) end) from timesheet where project_id=$1) +
+		(select case when action=1 then julianday('now', 'localtime') else 0 end from timesheet where project_id=$2 order by created_at desc limit 1)
+	)*86400)`
+
+	row := tdb.db.QueryRowx(sql, projId, projId)
+	var seconds int
+	err := row.Scan(&seconds)
+	return seconds, err
 }
