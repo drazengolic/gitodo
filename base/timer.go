@@ -132,3 +132,7 @@ func (tdb *TodoDb) GetProjectTime(projId int) (int, error) {
 	err := row.Scan(&seconds)
 	return seconds, err
 }
+
+func FormatSeconds(s int) string {
+	return fmt.Sprintf("%02d:%02d:%02d", s/3600, (s%3600)/60, s%60)
+}

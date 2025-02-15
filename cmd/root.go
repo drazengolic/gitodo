@@ -103,6 +103,7 @@ var (
 	strikeTroughStyle = lipgloss.NewStyle().Strikethrough(true)
 	greenTextStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00"))
 	boldText          = lipgloss.NewStyle().Bold(true)
+	magentaText       = lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
 )
 
 // Execute adds all child commands to the root command and sets flags appropriately.
