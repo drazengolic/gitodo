@@ -733,10 +733,10 @@ func (m model) footerView() string {
 func (m model) getHeaderHeight() int {
 	var h int
 	if m.proj.Name == "" || m.proj.Name == m.proj.Branch {
-		h = 2
+		h = 1
+	} else {
+		h = (len([]rune(m.proj.Name))-2)/m.screenWidth + 2
 	}
-
-	h = (len([]rune(m.proj.Name))-2)/m.screenWidth + 3
 
 	if m.timeTotal > 0 || m.timerActive {
 		h += 1
@@ -748,21 +748,14 @@ func (m model) getHeaderHeight() int {
 // getHeaderHeight calculates footer height from the state
 // because lipgloss.Height is not reliable
 func (m model) getFooterHeight() int {
-	var h int
 	switch {
 	case m.showHelp && m.mode == ModeTodoItems:
-		h = 7
+		return 7
 	case m.showHelp && m.mode == ModeQueue:
-		h = 6
+		return 6
 	default:
-		h = 2
+		return 2
 	}
-
-	if m.timeTotal > 0 || m.timerActive {
-		h -= 1
-	}
-
-	return h
 }
 
 // updateHeight updates the height of the viewport

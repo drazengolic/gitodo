@@ -18,6 +18,7 @@ package base
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -28,12 +29,27 @@ type TodoDb struct {
 }
 
 func NewTodoDb() (*TodoDb, error) {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		homedir = "."
+	var dbfile string
+	params := "?_fk=true&cache=shared&_loc=auto"
+	if p := os.Getenv("GITODO_DB"); p != "" {
+		path, err := filepath.Abs(p)
+		if err != nil {
+			return nil, err
+		}
+		err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
+		if err != nil {
+			return nil, err
+		}
+		dbfile = "file:" + path + params
+	} else {
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			homedir = "."
+		}
+		dbfile = "file:" + homedir + "/.gitodo.db" + params
 	}
-	defaultDbPath := "file:" + homedir + "/gitodo.db?_fk=true&cache=shared&_loc=auto"
-	return NewTodoDbSrc(defaultDbPath)
+
+	return NewTodoDbSrc(dbfile)
 }
 
 func NewTodoDbSrc(path string) (*TodoDb, error) {

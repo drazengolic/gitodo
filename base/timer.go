@@ -122,10 +122,10 @@ func (tdb *TodoDb) GetProjectTime(projId int) (int, error) {
 	// The second one adds the current time if the timer is running.
 	// Everything is multiplied with 86400 since the calculation is in
 	// the amount of days.
-	sql := `select round((
+	sql := `select round(coalesce((
 		(select sum(case when action=1 then -julianday(created_at) else julianday(created_at) end) from timesheet where project_id=$1) +
 		(select case when action=1 then julianday('now', 'localtime') else 0 end from timesheet where project_id=$2 order by created_at desc limit 1)
-	)*86400)`
+	),0)*86400)`
 
 	row := tdb.db.QueryRowx(sql, projId, projId)
 	var seconds int

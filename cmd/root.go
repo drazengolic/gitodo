@@ -60,6 +60,11 @@ to bottom. Use the TUI screen to change the order of the items.
 When stashing changes for an item, the "--include-untracked" flag will be 
 passed to git, so if you don't want to have some untracked files to be stashed,
 make sure to add them to .gitignore file or move them somewhere else. 
+
+By default, gitodo will store the database file into the current user's home
+directory. To override the path to the database file, set GITODO_DB environment
+variable to a desired path to the file.
+
   `,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:

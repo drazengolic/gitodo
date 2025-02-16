@@ -152,7 +152,7 @@ func (tdb *TodoDb) CreateReport(from, to, folderFilter string) (*Report, error) 
 func (tdb *TodoDb) reportCompletedItems(from, to, folderFilter string, f func(r ReportItem)) error {
 	sql := `select t.todo_id, t.project_id, t.task, t.done_at as time_at from todo t
 	natural join project p
-	where t.done_at >= ? and t.done_at <= ? and p.branch != '*' and p.folder like ? || '%'
+	where t.done_at >= ? and t.done_at <= ? and p.folder like ? || '%' and p.branch != '*'
 	order by t.project_id desc, t.done_at desc`
 
 	rows, err := tdb.db.Queryx(sql, from, to, folderFilter)
@@ -176,7 +176,7 @@ func (tdb *TodoDb) reportCreatedItems(from, to, folderFilter string, f func(r Re
 	sql := `select t.todo_id, t.project_id, t.task, t.created_at as time_at from todo t 
 	natural join project p
 	where t.created_at >= ? and t.created_at <= ? and t.done_at is null 
-	and p.branch != '*' and p.folder like ? || '%'
+	and p.folder like ? || '%' and p.branch != '*'
 	order by t.project_id desc, t.created_at desc`
 
 	rows, err := tdb.db.Queryx(sql, from, to, folderFilter)
@@ -202,10 +202,11 @@ func (tdb *TodoDb) reportTimeEntries(from, to, folderFilter string, f func(t Rep
 		select t.project_id, t.action, t.created_at as stopped_at, 
 		lag(t.created_at) over (order by t.created_at) as started_at from timesheet t
 		natural join project p
-		where t.created_at >= ? and t.created_at <= ? and p.branch != '*' and p.folder like ? || '%'
+		where t.created_at >= ? and t.created_at <= ? and p.folder like ? || '%' and p.branch != '*'
+		order by t.project_id desc, t.created_at
 	)
 	select project_id, started_at, stopped_at, round((julianday(stopped_at)-julianday(started_at))*86400) as duration
-	from entries where action = 2 and started_at is not null order by project_id desc, started_at`
+	from entries where action = 2 and started_at is not null`
 
 	rows, err := tdb.db.Queryx(sql, from, to, folderFilter)
 	if err != nil {

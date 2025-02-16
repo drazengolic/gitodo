@@ -58,6 +58,9 @@ create table todo (
          on update no action
 );
 
+create index idx_todo on todo (project_id, created_at);
+create index idx_todo_done on todo (project_id, done_at) where done_at is not null;
+
 create table timesheet (
 	timesheet_id integer primary key autoincrement,
 	project_id integer not null,
@@ -69,6 +72,8 @@ create table timesheet (
          on delete cascade 
          on update no action
 );
+
+create index idx_timesheet on timesheet (project_id, created_at);
 `
 					if _, err := tx.Exec(sql); err != nil {
 						return err
@@ -77,6 +82,7 @@ create table timesheet (
 				},
 			},
 		),
+		// silence the migrator
 		migrator.WithLogger(migrator.LoggerFunc(func(s string, i ...interface{}) {})),
 	)
 
