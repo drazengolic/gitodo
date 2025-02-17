@@ -53,7 +53,7 @@ var (
 
 	boldText = lipgloss.NewStyle().Bold(true)
 
-	commitedBox = greenText.SetString("commited").String()
+	committedBox = greenText.SetString("committed").String()
 
 	dimmedStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#777777"))
@@ -127,11 +127,11 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 
 	err = db.TodoItems(todoProjId, func(t base.Todo) {
 		todoItems = append(todoItems, todoItem{
-			id:       t.Id,
-			task:     t.Task,
-			done:     t.DoneAt.Valid,
-			commited: t.CommitedAt.Valid,
-			stash:    stash[t.Id],
+			id:        t.Id,
+			task:      t.Task,
+			done:      t.DoneAt.Valid,
+			committed: t.CommittedAt.Valid,
+			stash:     stash[t.Id],
 		})
 	})
 
@@ -142,11 +142,11 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 
 	err = db.TodoItems(queueProjId, func(t base.Todo) {
 		queueItems = append(queueItems, todoItem{
-			id:       t.Id,
-			task:     t.Task,
-			done:     t.DoneAt.Valid,
-			commited: t.CommitedAt.Valid,
-			stash:    stash[t.Id],
+			id:        t.Id,
+			task:      t.Task,
+			done:      t.DoneAt.Valid,
+			committed: t.CommittedAt.Valid,
+			stash:     stash[t.Id],
 		})
 	})
 
@@ -733,13 +733,9 @@ func (m model) footerView() string {
 func (m model) getHeaderHeight() int {
 	var h int
 	if m.proj.Name == "" || m.proj.Name == m.proj.Branch {
-		h = 1
+		h = 2
 	} else {
-		h = (len([]rune(m.proj.Name))-2)/m.screenWidth + 2
-	}
-
-	if m.timeTotal > 0 || m.timerActive {
-		h += 1
+		h = (len([]rune(m.proj.Name))-2)/m.screenWidth + 3
 	}
 
 	return h

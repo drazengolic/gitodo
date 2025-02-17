@@ -30,13 +30,13 @@ type Project struct {
 }
 
 type Todo struct {
-	Id         int            `db:"todo_id"`
-	ProjectId  int            `db:"project_id"`
-	Task       string         `db:"task"`
-	Position   int            `db:"position"`
-	CreatedAt  string         `db:"created_at"`
-	DoneAt     sql.NullString `db:"done_at"`
-	CommitedAt sql.NullString `db:"commited_at"`
+	Id          int            `db:"todo_id"`
+	ProjectId   int            `db:"project_id"`
+	Task        string         `db:"task"`
+	Position    int            `db:"position"`
+	CreatedAt   string         `db:"created_at"`
+	DoneAt      sql.NullString `db:"done_at"`
+	CommittedAt sql.NullString `db:"committed_at"`
 }
 
 type TimeEntry struct {

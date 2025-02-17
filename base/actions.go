@@ -89,7 +89,7 @@ func (tdb *TodoDb) GetProject(projId int) Project {
 
 func (tdb *TodoDb) TodoItems(projId int, f func(t Todo)) error {
 	todo := Todo{}
-	rows, err := tdb.db.Queryx(`select todo_id, project_id, task, position, created_at, done_at, commited_at 
+	rows, err := tdb.db.Queryx(`select todo_id, project_id, task, position, created_at, done_at, committed_at 
 		from todo where project_id = $1 order by position`, projId)
 
 	if err != nil {
@@ -109,17 +109,17 @@ func (tdb *TodoDb) TodoItems(projId int, f func(t Todo)) error {
 
 func (tdb *TodoDb) TodoItemsForCommit(projId int, previous bool, f func(t Todo)) error {
 	todo := Todo{}
-	sql := `select todo_id, project_id, task, position, created_at, done_at, commited_at 
+	sql := `select todo_id, project_id, task, position, created_at, done_at, committed_at 
 		from todo where project_id = :projId and done_at is not null`
 
 	if previous {
-		sql += ` and (commited_at = (select max(commited_at) from todo where project_id=:projId)
-		or commited_at is null)`
+		sql += ` and (committed_at = (select max(committed_at) from todo where project_id=:projId)
+		or committed_at is null)`
 	} else {
-		sql += " and commited_at is null"
+		sql += " and committed_at is null"
 	}
 
-	sql += " order by position"
+	sql += " order by done_at"
 
 	rows, err := tdb.db.NamedQuery(sql, map[string]any{
 		"projId": projId,
@@ -141,7 +141,7 @@ func (tdb *TodoDb) TodoItemsForCommit(projId int, previous bool, f func(t Todo))
 }
 
 func (tdb *TodoDb) TodoWhat(projId int) *Todo {
-	sql := `select todo_id, project_id, task, position, created_at, done_at, commited_at 
+	sql := `select todo_id, project_id, task, position, created_at, done_at, committed_at 
 		from todo where project_id = $1 and done_at is null order by position limit 1`
 	row := tdb.db.QueryRowx(sql, projId)
 	todo := Todo{}
@@ -230,14 +230,14 @@ func (tdb *TodoDb) UpdateProjectName(projId int, name string) error {
 	return err
 }
 
-func (tdb *TodoDb) SetItemsCommited(projId int, previous bool) error {
-	sql := `update todo set commited_at=:ts where project_id=:projId and done_at is not null`
+func (tdb *TodoDb) SetItemsCommitted(projId int, previous bool) error {
+	sql := `update todo set committed_at=:ts where project_id=:projId and done_at is not null`
 
 	if previous {
-		sql += ` and (commited_at = (select max(commited_at) from todo where project_id=:projId)
-		or commited_at is null)`
+		sql += ` and (committed_at = (select max(committed_at) from todo where project_id=:projId)
+		or committed_at is null)`
 	} else {
-		sql += " and commited_at is null"
+		sql += " and committed_at is null"
 	}
 
 	_, err := tdb.db.NamedExec(sql, map[string]any{

@@ -33,7 +33,7 @@ var commitCmd = &cobra.Command{
 	Short:              "Run a git commit with a prepared message",
 	Long: `
 Run "git commit" with a prepared message based on the completed to-do items
-that will also be marked as commited if the commit was successful.
+that will also be marked as committed if the commit was successful.
 
 Items that are previously marked as committed will not be included in the 
 message unless "--amend" flag is provided.
@@ -72,7 +72,7 @@ Special flag handling:
 		if amend && noEdit {
 			err := runCommit(args)
 			ExitOnError(err, 1)
-			err = tdb.SetItemsCommited(proj.Id, true)
+			err = tdb.SetItemsCommitted(proj.Id, true)
 			ExitOnError(err, 1)
 			return
 		}
@@ -96,7 +96,7 @@ Special flag handling:
 
 		err = runCommit(append([]string{"-eF", file.Path()}, args...))
 		if err == nil {
-			err = tdb.SetItemsCommited(proj.Id, amend)
+			err = tdb.SetItemsCommitted(proj.Id, amend)
 		}
 		file.Delete()
 		ExitOnError(err, 1)

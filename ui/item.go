@@ -27,7 +27,7 @@ import (
 type todoItem struct {
 	id             int
 	task, stash    string
-	done, commited bool
+	done, committed bool
 }
 
 // Render renders a single to-do item
@@ -44,8 +44,8 @@ func (i todoItem) Render(bold, showId bool, width int, glue string) string {
 		s = wordwrap.WrapText(i.task, width, glue)
 	}
 
-	if i.commited {
-		s += fmt.Sprintf("\n%s• %s", glue, commitedBox)
+	if i.committed {
+		s += fmt.Sprintf("\n%s• %s", glue, committedBox)
 	}
 	if i.stash != "" {
 		s += fmt.Sprintf("\n%s• %s", glue, orangeText.Render("stashed: "+i.getStashTimestamp()))

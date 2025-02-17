@@ -51,7 +51,7 @@ create table todo (
 	created_at text not null 
 		default (datetime(current_timestamp, 'localtime')),
 	done_at text,
-	commited_at text,
+	committed_at text,
 	foreign key (project_id) 
       references project (project_id) 
          on delete cascade 
