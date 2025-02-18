@@ -215,7 +215,8 @@ func (tdb *TodoDb) MoveTodo(todoId, projId int) error {
 	}
 
 	// move
-	_, err = tx.Exec(`update todo set project_id=$1, position=$2 where todo_id=$3`, projId, count+1, todoId)
+	_, err = tx.Exec(`update todo set project_id=$1, position=$2, 
+	created_at=datetime(current_timestamp, 'localtime') where todo_id=$3`, projId, count+1, todoId)
 
 	if err != nil {
 		return err
