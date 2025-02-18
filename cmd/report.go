@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/drazengolic/gitodo/base"
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,7 @@ If flags --from and --to are provided, the "days" argument is ignored and the
 given interval is used instead. Both flags must be provided.
 
 To limit the report only to git repositories under a certain directory (child
-directories included), use the --path flag. Relative paths are supported.
+directories included), use the --dir flag. Relative paths are supported.
 
 To get the report in a JSON format that also contains more details than the
 default screen, set the --json flag. This flag, together with --from and --to
@@ -152,29 +153,31 @@ When exporting to JSON, every timestamp will be converted to UTC.
 			return
 		}
 
+		useColors := !cmd.Flags().Changed("pager")
+
 		today := time.Now().Format(time.DateOnly)
 		yesterday := time.Now().Add(-24 * time.Hour).Format(time.DateOnly)
 
 		for _, repo := range report.Repos {
-			builder.WriteString(magentaText.Render(repo.Folder))
+			builder.WriteString(txtRender(repo.Folder, &magentaText, useColors))
 			builder.WriteRune('\n')
 
 			for _, proj := range repo.Projects {
 				if proj.Proj.Branch != proj.Proj.Name {
-					builder.WriteString(blueText.Render(proj.Proj.Name))
+					builder.WriteString(txtRender(proj.Proj.Name, &blueText, useColors))
 					builder.WriteRune('\n')
-					builder.WriteString(dimmedText.Render(proj.Proj.Branch))
+					builder.WriteString(txtRender(proj.Proj.Branch, &dimmedText, useColors))
 				} else {
-					builder.WriteString(blueText.Render(proj.Proj.Branch))
+					builder.WriteString(txtRender(proj.Proj.Branch, &blueText, useColors))
 				}
 
 				switch {
 				case strings.HasPrefix(proj.LatestUpdate, today):
-					builder.WriteString(dimmedText.Render(" • updated today"))
+					builder.WriteString(txtRender(" • updated today", &dimmedText, useColors))
 				case strings.HasPrefix(proj.LatestUpdate, yesterday):
-					builder.WriteString(dimmedText.Render(" • updated yesterday"))
+					builder.WriteString(txtRender(" • updated yesterday", &dimmedText, useColors))
 				default:
-					builder.WriteString(dimmedText.Render(" • updated on " + proj.LatestUpdate[0:10]))
+					builder.WriteString(txtRender(" • updated on "+proj.LatestUpdate[0:10], &dimmedText, useColors))
 				}
 
 				builder.WriteRune('\n')
@@ -200,7 +203,7 @@ When exporting to JSON, every timestamp will be converted to UTC.
 				if proj.TotalTimeSeconds > 0 {
 					builder.WriteString(fmt.Sprintf("\nTime: %s", base.FormatSeconds(proj.TotalTimeSeconds)))
 					if proj.TimerRunning {
-						builder.WriteString(orangeText.Render(" (running)"))
+						builder.WriteString(txtRender(" (running)", &orangeText, useColors))
 						builder.WriteRune('\n')
 					} else {
 						builder.WriteRune('\n')
@@ -212,20 +215,20 @@ When exporting to JSON, every timestamp will be converted to UTC.
 			}
 
 			if repo.TotalTimeSeconds > 0 && len(repo.Projects) > 1 {
-				builder.WriteString(orangeText.Render("Repo time: " + base.FormatSeconds(repo.TotalTimeSeconds)))
+				builder.WriteString(txtRender("Repo time: "+base.FormatSeconds(repo.TotalTimeSeconds), &orangeText, useColors))
 				builder.WriteString("\n\n")
 			}
 		}
 
 		if report.TotalTimeSeconds > 0 {
-			builder.WriteString(greenTextStyle.Render("Total time: " + base.FormatSeconds(report.TotalTimeSeconds)))
+			builder.WriteString(txtRender("Total time: "+base.FormatSeconds(report.TotalTimeSeconds), &greenTextStyle, useColors))
 			builder.WriteRune('\n')
 		}
 
 		output := builder.String()
 		pager := os.Getenv("PAGER")
 
-		if pager == "" {
+		if pager == "" || useColors {
 			fmt.Print(output)
 			return
 		}
@@ -240,13 +243,23 @@ When exporting to JSON, every timestamp will be converted to UTC.
 	},
 }
 
+// txtRender is a helper function to make style rendering optional
+func txtRender(txt string, style *lipgloss.Style, useStyle bool) string {
+	if useStyle {
+		return style.Render(txt)
+	} else {
+		return txt
+	}
+}
+
 func init() {
 	rootCmd.AddCommand(reportCmd)
 
 	reportCmd.Flags().BoolP("json", "j", false, "Print the report in JSON format")
 	reportCmd.Flags().StringP("from", "f", "", "From what time (RFC3339) to read data")
 	reportCmd.Flags().StringP("to", "t", "", "To what time (RFC3339) to read data")
-	reportCmd.Flags().StringP("path", "p", "", "Limit report to the repositories in this path")
+	reportCmd.Flags().StringP("dir", "d", "", "Limit report to the repositories in this directory")
+	reportCmd.Flags().BoolP("pager", "p", false, "use PAGER for output")
 
 	// remove branch flag from help
 	reportCmd.PersistentFlags().StringP("branch", "", "", "Unused branch")

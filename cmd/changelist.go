@@ -37,12 +37,11 @@ Display to-do items as a changelist usable in markdown documents.
 By default, it displays only the completed items. If --all flag is set, all
 items will be displayed in the form of a GitHub task list.
 
-A pager will be used where available. If using a pager is not desirable, set
-the --no-pager flag.`,
+If using a pager is desirable, set the --pager flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		env, tdb := MustInit()
 		all := cmd.Flags().Changed("all")
-		noPager := cmd.Flags().Changed("no-pager")
+		noPager := !cmd.Flags().Changed("pager")
 		builder := strings.Builder{}
 		count := 0
 
@@ -98,5 +97,5 @@ func init() {
 	rootCmd.AddCommand(changelistCmd)
 
 	changelistCmd.Flags().BoolP("all", "a", false, "show all")
-	changelistCmd.Flags().BoolP("no-pager", "n", false, "do not page output")
+	changelistCmd.Flags().BoolP("pager", "p", false, "use PAGER for output")
 }
