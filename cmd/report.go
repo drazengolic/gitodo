@@ -152,6 +152,9 @@ When exporting to JSON, every timestamp will be converted to UTC.
 			return
 		}
 
+		today := time.Now().Format(time.DateOnly)
+		yesterday := time.Now().Add(-24 * time.Hour).Format(time.DateOnly)
+
 		for _, repo := range report.Repos {
 			builder.WriteString(magentaText.Render(repo.Folder))
 			builder.WriteRune('\n')
@@ -164,6 +167,16 @@ When exporting to JSON, every timestamp will be converted to UTC.
 				} else {
 					builder.WriteString(blueText.Render(proj.Proj.Branch))
 				}
+
+				switch {
+				case strings.HasPrefix(proj.LatestUpdate, today):
+					builder.WriteString(dimmedText.Render(" • updated today"))
+				case strings.HasPrefix(proj.LatestUpdate, yesterday):
+					builder.WriteString(dimmedText.Render(" • updated yesterday"))
+				default:
+					builder.WriteString(dimmedText.Render(" • updated on " + proj.LatestUpdate[0:10]))
+				}
+
 				builder.WriteRune('\n')
 
 				if len(proj.CompletedItems) > 0 {
