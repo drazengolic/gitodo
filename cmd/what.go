@@ -46,18 +46,18 @@ the branch name.`,
 		te, err := tdb.CheckTimer(proj.Id)
 		HandleTimerError(err)
 
-		fmt.Printf("%s\n\n", blueText.Render(proj.Name))
+		fmt.Printf("%s\n", blueText.Render(proj.Name))
 
 		item := tdb.TodoWhat(proj.Id)
 
 		if item == nil {
 			fmt.Println(greenTextStyle.Render("All done!"))
 		} else {
-			fmt.Printf("%s\n%s\n", boldText.Render("To do:"), item.Task)
+			fmt.Printf("%s\n\n%s\n\n", boldText.Render("To do:"), item.Task)
 		}
 
 		if te != nil && te.ProjectId == proj.Id && te.Action == base.TimesheetActionStart {
-			fmt.Printf("\n%s\n", orangeText.Render("Timer running for "+base.FormatSeconds(te.Duration())))
+			fmt.Printf("%s\n", orangeText.Render("Timer running for "+base.FormatSeconds(te.Duration())))
 		}
 
 		stash, err := shell.GetStashItems()
