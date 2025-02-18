@@ -107,6 +107,26 @@ func (tdb *TodoDb) TodoItems(projId int, f func(t Todo)) error {
 	return nil
 }
 
+func (tdb *TodoDb) TodoItemsDone(projId int, f func(t Todo)) error {
+	todo := Todo{}
+	rows, err := tdb.db.Queryx(`select todo_id, project_id, task, position, created_at, done_at, committed_at 
+		from todo where project_id = $1 and done_at is not null order by done_at`, projId)
+
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		err = rows.StructScan(&todo)
+		if err != nil {
+			return err
+		}
+		f(todo)
+	}
+
+	return nil
+}
+
 func (tdb *TodoDb) TodoItemsForCommit(projId int, previous bool, f func(t Todo)) error {
 	todo := Todo{}
 	sql := `select todo_id, project_id, task, position, created_at, done_at, committed_at 

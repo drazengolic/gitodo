@@ -46,23 +46,27 @@ the --no-pager flag.`,
 		builder := strings.Builder{}
 		count := 0
 
-		tdb.TodoItems(tdb.FetchProjectId(env.ProjDir, env.Branch), func(t base.Todo) {
-			count++
-			switch {
-			case all && t.DoneAt.Valid:
-				builder.WriteString("- [x] ")
+		if all {
+			tdb.TodoItems(tdb.FetchProjectId(env.ProjDir, env.Branch), func(t base.Todo) {
+				count++
+
+				if t.DoneAt.Valid {
+					builder.WriteString("- [x] ")
+				} else {
+					builder.WriteString("- [ ] ")
+				}
+
 				builder.WriteString(t.Task)
-			case all && !t.DoneAt.Valid:
-				builder.WriteString("- [ ] ")
-				builder.WriteString(t.Task)
-			case !all && t.DoneAt.Valid:
+				builder.WriteRune('\n')
+			})
+		} else {
+			tdb.TodoItemsDone(tdb.FetchProjectId(env.ProjDir, env.Branch), func(t base.Todo) {
+				count++
 				builder.WriteString("- ")
 				builder.WriteString(t.Task)
-			default:
-				return
-			}
-			builder.WriteRune('\n')
-		})
+				builder.WriteRune('\n')
+			})
+		}
 
 		if count == 0 {
 			return

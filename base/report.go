@@ -132,16 +132,16 @@ func (tdb *TodoDb) CreateReport(from, to, folderFilter string) (*Report, error) 
 
 	report.Repos = slices.Collect(maps.Values(repoMap))
 
-	// sort everything in descending order
+	// sort everything in ascending order
 	if len(report.Repos) > 1 {
 		slices.SortFunc(report.Repos, func(p1, p2 *ReportRepo) int {
-			return strings.Compare(p2.LatestUpdate, p1.LatestUpdate)
+			return strings.Compare(p1.LatestUpdate, p2.LatestUpdate)
 		})
 	}
 	for _, repo := range report.Repos {
 		if len(repo.Projects) > 1 {
 			slices.SortFunc(repo.Projects, func(p1, p2 *ReportProject) int {
-				return strings.Compare(p2.LatestUpdate, p1.LatestUpdate)
+				return strings.Compare(p1.LatestUpdate, p2.LatestUpdate)
 			})
 		}
 	}
@@ -153,7 +153,7 @@ func (tdb *TodoDb) reportCompletedItems(from, to, folderFilter string, f func(r 
 	sql := `select t.todo_id, t.project_id, t.task, t.done_at as time_at from todo t
 	natural join project p
 	where t.done_at >= ? and t.done_at <= ? and p.folder like ? || '%' and p.branch != '*'
-	order by t.project_id desc, t.done_at desc`
+	order by t.project_id, t.done_at`
 
 	rows, err := tdb.db.Queryx(sql, from, to, folderFilter)
 	if err != nil {
@@ -177,7 +177,7 @@ func (tdb *TodoDb) reportCreatedItems(from, to, folderFilter string, f func(r Re
 	natural join project p
 	where t.created_at >= ? and t.created_at <= ? and t.done_at is null 
 	and p.folder like ? || '%' and p.branch != '*'
-	order by t.project_id desc, t.created_at desc`
+	order by t.project_id, t.created_at`
 
 	rows, err := tdb.db.Queryx(sql, from, to, folderFilter)
 	if err != nil {
@@ -203,7 +203,7 @@ func (tdb *TodoDb) reportTimeEntries(from, to, folderFilter string, f func(t Rep
 		lag(t.created_at) over (order by t.created_at) as started_at from timesheet t
 		natural join project p
 		where t.created_at >= ? and t.created_at <= ? and p.folder like ? || '%' and p.branch != '*'
-		order by t.project_id desc, t.created_at
+		order by t.project_id, t.created_at
 	)
 	select project_id, started_at, stopped_at, round((julianday(stopped_at)-julianday(started_at))*86400) as duration
 	from entries where action = 2 and started_at is not null`
