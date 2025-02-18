@@ -107,6 +107,7 @@ type model struct {
 	showTodoId   bool
 	timeTotal    int
 	timerActive  bool
+	doneCount    int
 }
 
 // initialModel creates the initial model from the data and the environment
@@ -115,6 +116,7 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 	queueProjId := db.FetchProjectId(env.ProjDir, "*")
 	todoItems := []todoItem{}
 	queueItems := []todoItem{}
+	doneCount := 0
 
 	stash, err := shell.GetStashItems()
 
@@ -133,6 +135,10 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 			committed: t.CommittedAt.Valid,
 			stash:     stash[t.Id],
 		})
+
+		if t.DoneAt.Valid {
+			doneCount++
+		}
 	})
 
 	if err != nil {
@@ -181,6 +187,7 @@ func initialModel(env *shell.DirEnv, db *base.TodoDb) model {
 		db:          db,
 		showHelp:    false,
 		timeTotal:   timeTotal,
+		doneCount:   doneCount,
 	}
 
 	te := db.GetLatestTimeEntry()
@@ -256,6 +263,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.errorMsg = err.Error()
 				} else {
 					m.todoItems[m.cursor].done = done
+				}
+
+				if done {
+					m.doneCount++
+				} else {
+					m.doneCount--
 				}
 			}
 
@@ -541,7 +554,7 @@ func (m model) Content() string {
 
 	// to-do items section
 
-	builder.WriteString(boldText.Render("  TO-DO LIST:"))
+	builder.WriteString(boldText.Render(fmt.Sprintf("  TO-DO LIST (%d/%d):", m.doneCount, len(m.todoItems))))
 	builder.WriteString("\n\n")
 
 	itemWidth := m.viewport.Width - 6
@@ -584,7 +597,7 @@ func (m model) Content() string {
 	itemWidth = m.viewport.Width - 2
 
 	builder.WriteString("\n")
-	builder.WriteString(boldText.Render("  QUEUE:"))
+	builder.WriteString(boldText.Render(fmt.Sprintf("  QUEUE (%d):", len(m.queueItems))))
 	builder.WriteString("\n\n")
 
 	for i, choice := range m.queueItems {
