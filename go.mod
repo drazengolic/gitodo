@@ -9,6 +9,7 @@ require (
 	github.com/lopezator/migrator v0.3.1
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/spf13/cobra v1.8.1
+	golang.org/x/term v0.30.0
 )
 
 require (
@@ -16,7 +17,6 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
 	github.com/tadvi/systray v0.0.0-20190226123456-11a2b8fa57af // indirect
-	golang.org/x/term v0.30.0 // indirect
 )
 
 require (

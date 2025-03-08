@@ -97,9 +97,8 @@ variable to a desired path to the file.
 }
 
 var (
-	projectBranch string
-	redText       = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000"))
-	orangeText    = lipgloss.NewStyle().
+	redText    = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff0000"))
+	orangeText = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#ff7500", Dark: "#ffa500"})
 	dimmedText = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#777777"))
@@ -121,7 +120,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&projectBranch, "branch", "", "branch name to use")
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 
@@ -129,9 +127,6 @@ func init() {
 func MustInit() (*shell.DirEnv, *base.TodoDb) {
 	env, err := shell.GetDirEnv()
 	ExitOnError(err, 1)
-	if projectBranch != "" {
-		env.Branch = projectBranch
-	}
 	tdb, err := base.NewTodoDb()
 	ExitOnError(err, 1)
 	return env, tdb

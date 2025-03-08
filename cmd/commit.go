@@ -108,8 +108,6 @@ func init() {
 	// all arguments are passed trough to git, so remove the flags from the doc
 	commitCmd.PersistentFlags().BoolP("help", "h", false, "Print usage")
 	commitCmd.PersistentFlags().Lookup("help").Hidden = true
-	commitCmd.PersistentFlags().StringP("branch", "", "", "Unused branch")
-	commitCmd.PersistentFlags().Lookup("branch").Hidden = true
 }
 
 func runCommit(args []string) error {

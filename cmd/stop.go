@@ -70,8 +70,4 @@ And error is displayed if no timer is running.`,
 
 func init() {
 	rootCmd.AddCommand(stopCmd)
-
-	// remove branch flag from help
-	stopCmd.PersistentFlags().StringP("branch", "", "", "Unused branch")
-	stopCmd.PersistentFlags().Lookup("branch").Hidden = true
 }

@@ -260,8 +260,4 @@ func init() {
 	reportCmd.Flags().StringP("to", "t", "", "To what time (RFC3339) to read data")
 	reportCmd.Flags().StringP("dir", "d", "", "Limit report to the repositories in this directory")
 	reportCmd.Flags().BoolP("pager", "p", false, "use PAGER for output")
-
-	// remove branch flag from help
-	reportCmd.PersistentFlags().StringP("branch", "", "", "Unused branch")
-	reportCmd.PersistentFlags().Lookup("branch").Hidden = true
 }
