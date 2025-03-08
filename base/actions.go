@@ -286,3 +286,36 @@ func (tdb *TodoDb) GetItemsAndBranch(ids []int) ([]*ItemAndBranch, error) {
 
 	return resultSet, nil
 }
+
+func (tdb *TodoDb) GetBranches(repo string) ([]BranchItem, error) {
+	var resultSet []BranchItem
+	sql := `select p.branch as branch_name, count(*) as item_count, p.project_id
+	from project p
+	natural join todo t
+	where p.folder = ? and p.branch != '*'
+	group by p.branch`
+
+	if err := tdb.db.Select(&resultSet, sql, repo); err != nil {
+		return nil, err
+	}
+
+	return resultSet, nil
+}
+
+func (tdb *TodoDb) DeleteProject(projId int) error {
+	_, err := tdb.db.Exec("delete from project where project_id = ?", projId)
+	return err
+}
+
+func (tdb *TodoDb) Vacuum() error {
+	_, err := tdb.db.Exec("vacuum")
+	return err
+}
+
+func (tdb *TodoDb) CopyProjectItems(projFrom, projTo int) error {
+	sql := `insert into todo (project_id, task, position) 
+	select ?, task, position from todo where project_id = ?`
+
+	_, err := tdb.db.Exec(sql, projTo, projFrom)
+	return err
+}

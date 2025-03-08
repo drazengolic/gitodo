@@ -48,3 +48,11 @@ func GetDirEnv() (*DirEnv, error) {
 		Editor:  strings.TrimSpace(string(editor)),
 	}, nil
 }
+
+func ListBranches() ([]string, error) {
+	out, err := exec.Command("git", "--no-pager", "branch", "--format=%(refname:short)").Output()
+	if err != nil {
+		return nil, err
+	}
+	return strings.Split(strings.TrimSpace(string(out)), "\n"), nil
+}

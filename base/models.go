@@ -51,6 +51,12 @@ type ItemAndBranch struct {
 	BranchName string `db:"branch_name"`
 }
 
+type BranchItem struct {
+	ProjectId  int    `db:"project_id"`
+	BranchName string `db:"branch_name"`
+	ItemCount  int    `db:"item_count"`
+}
+
 type ReportItem struct {
 	Id        int    `db:"todo_id"`
 	ProjectId int    `db:"project_id"`
