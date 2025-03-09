@@ -18,6 +18,7 @@ package shell
 
 import (
 	"errors"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -55,4 +56,26 @@ func ListBranches() ([]string, error) {
 		return nil, err
 	}
 	return strings.Split(strings.TrimSpace(string(out)), "\n"), nil
+}
+
+func CheckoutBranch(name, from string, create bool) error {
+	args := []string{"checkout"}
+	if create {
+		args = append(args, "-b")
+	}
+	args = append(args, name)
+	if from != "" {
+		args = append(args, from)
+	}
+	_, err := exec.Command("git", args...).Output()
+	return err
+}
+
+func GitStatus() {
+	cmd := exec.Command("git", "status")
+	cmd.Env = os.Environ()
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
 }
