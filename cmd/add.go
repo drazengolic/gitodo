@@ -17,6 +17,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/drazengolic/gitodo/shell"
@@ -44,10 +45,12 @@ list.`,
 		HandleTimerError(err)
 
 		if len(args) > 0 {
-			id, pos := tdb.AddTodo(projId, strings.Join(args, " "))
+			item := strings.Join(args, " ")
+			id, pos := tdb.AddTodo(projId, item)
 			if cmd.Flags().Changed("top") {
 				tdb.ChangePosition(id, pos, 1)
 			}
+			fmt.Printf("Added to-do item %q to %q\n", item, env.Branch)
 		} else {
 			tmpfile, err := shell.NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
 # Comments like this are ignored.
@@ -62,6 +65,8 @@ list.`,
 			ExitOnError(err, 1)
 			err = tdb.AddTodos(projId, items)
 			ExitOnError(err, 1)
+
+			fmt.Printf("Added %d item(s) to %q\n", len(items), env.Branch)
 		}
 	},
 }

@@ -17,6 +17,7 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/drazengolic/gitodo/shell"
@@ -56,6 +57,7 @@ item.`,
 			ExitOnError(err, 1)
 			err = tdb.AddTodos(projId, items)
 			ExitOnError(err, 1)
+			fmt.Printf("Queued %d item(s).\n", len(items))
 		}
 	},
 }

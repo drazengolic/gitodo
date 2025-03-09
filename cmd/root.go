@@ -90,6 +90,7 @@ variable to a desired path to the file.
 			ExitOnError(err, 1)
 			tdb.AddTodos(projId, items)
 
+			fmt.Printf("Added %d item(s) to %q\n", len(items), env.Branch)
 		} else {
 			ui.RunTodoListUI(env, tdb)
 		}

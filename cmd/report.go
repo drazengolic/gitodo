@@ -187,8 +187,6 @@ When exporting to JSON, every timestamp will be converted to UTC.
 					for _, item := range proj.CompletedItems {
 						builder.WriteString(fmt.Sprintf("  - %s\n", item.Task))
 					}
-				} else {
-					builder.WriteString("\nNo completed items.\n")
 				}
 
 				if len(proj.CreatedItems) > 0 {
@@ -196,8 +194,6 @@ When exporting to JSON, every timestamp will be converted to UTC.
 					for _, item := range proj.CreatedItems {
 						builder.WriteString(fmt.Sprintf("  - %s\n", item.Task))
 					}
-				} else {
-					builder.WriteString("\nNo new items added.\n")
 				}
 
 				if proj.TotalTimeSeconds > 0 {
