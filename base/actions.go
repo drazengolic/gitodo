@@ -17,6 +17,7 @@ limitations under the License.
 package base
 
 import (
+	"errors"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -71,6 +72,9 @@ func (tdb *TodoDb) AddTodo(projId int, task string) (int, int) {
 }
 
 func (tdb *TodoDb) AddTodos(projId int, tasks []string) error {
+	if len(tasks) == 0 {
+		return errors.New("No items to add.")
+	}
 	count := tdb.TodoCount(projId)
 	insert := make([]map[string]any, len(tasks))
 	for i, t := range tasks {
