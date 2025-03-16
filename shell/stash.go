@@ -23,33 +23,47 @@ import (
 	"strings"
 )
 
-func ParseStashList(content string) map[int]string {
-	res := make(map[int]string)
-	r := regexp.MustCompile("gitodo_([0-9]+)")
+type StashItem struct {
+	Date, Ref string
+}
 
-	for _, row := range strings.Split(content, "\n") {
-		m := r.FindStringSubmatch(row)
+func parseStashList(content string) map[int]StashItem {
+	result := make(map[int]StashItem)
+	regName := regexp.MustCompile("gitodo_([0-9]+)")
+	regDate := regexp.MustCompile(`\{([^}]+)\}`)
+
+	for i, row := range strings.Split(content, "\n") {
+		m := regName.FindStringSubmatch(row)
 		if len(m) == 2 {
-			id, _ := strconv.Atoi(m[1])
-			val, _, _ := strings.Cut(row, "}:")
-			res[id] = val + "}"
+			todoId, _ := strconv.Atoi(m[1])
+			date := regDate.FindStringSubmatch(row)
+			item := StashItem{Ref: "stash@{" + strconv.Itoa(i) + "}"}
+			if len(date) == 2 {
+				item.Date = date[1]
+			}
+			result[todoId] = item
 		}
 	}
 
-	return res
+	return result
 }
 
-func GetStashItems() (map[int]string, error) {
+func GetStashItems() (map[int]StashItem, error) {
 	revOutput, err := exec.Command("git", "--no-pager", "stash", "list", "--date=local").Output()
 	if err != nil {
 		return nil, err
 	}
-	return ParseStashList(string(revOutput)), nil
+	return parseStashList(string(revOutput)), nil
 }
 
 func PushStash(todoId int) error {
 	_, err := exec.Command("git", "stash", "push", "-m", "gitodo_"+strconv.Itoa(todoId), "--include-untracked").Output()
 	return err
+}
+
+func PushStashNoItem() (string, error) {
+	out, err := exec.Command("git", "stash", "--include-untracked").Output()
+	return string(out), err
 }
 
 func PopStash(stash string) error {

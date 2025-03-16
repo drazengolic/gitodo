@@ -383,12 +383,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				index := int(m.pendingOp.(opPopStash))
 				item := m.todoItems[index]
 				m.stateMode(ModeTodoItems)
-				err := shell.PopStash(item.stash)
+				err := shell.PopStash(item.stash.Ref)
 				if err != nil {
 					m.errorMsg = err.Error()
 					break
 				}
-				m.todoItems[index].stash = ""
+				m.todoItems[index].stash = shell.StashItem{}
 			}
 		// cancel prompt, clear pending op
 		case "n", "N":
@@ -491,7 +491,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "s", "S":
 			if m.mode == ModeTodoItems {
 				item := m.todoItems[m.cursor]
-				if item.stash != "" {
+				if item.stash.Date != "" {
 					beeep.Beep(beeep.DefaultFreq, beeep.DefaultDuration)
 					break
 				}
@@ -502,7 +502,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// pop stash
 		case "p", "P":
 			item := m.todoItems[m.cursor]
-			if m.mode == ModeTodoItems && item.stash != "" {
+			if m.mode == ModeTodoItems && item.stash.Date != "" {
 				m.prompt = "pop changes from stash? (y/n) "
 				m.stateMode(ModeInput)
 				m.pendingOp = opPopStash(m.cursor)

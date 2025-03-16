@@ -18,16 +18,16 @@ package ui
 
 import (
 	"fmt"
-	"strings"
-
+	"github.com/drazengolic/gitodo/shell"
 	"github.com/drazengolic/gitodo/wordwrap"
 )
 
 // item rendered in both sections
 type todoItem struct {
-	id             int
-	task, stash    string
+	id              int
+	task            string
 	done, committed bool
+	stash           shell.StashItem
 }
 
 // Render renders a single to-do item
@@ -47,18 +47,8 @@ func (i todoItem) Render(bold, showId bool, width int, glue string) string {
 	if i.committed {
 		s += fmt.Sprintf("\n%s• %s", glue, committedBox)
 	}
-	if i.stash != "" {
-		s += fmt.Sprintf("\n%s• %s", glue, orangeText.Render("stashed: "+i.getStashTimestamp()))
+	if i.stash.Date != "" {
+		s += fmt.Sprintf("\n%s• %s", glue, orangeText.Render("stashed: "+i.stash.Date))
 	}
 	return s
-}
-
-func (i todoItem) getStashTimestamp() string {
-	if i.stash == "" {
-		return ""
-	}
-
-	before, _, _ := strings.Cut(i.stash, "}")
-	_, after, _ := strings.Cut(before, "{")
-	return after
 }

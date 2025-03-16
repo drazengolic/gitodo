@@ -26,8 +26,8 @@ func TestParseStashList(t *testing.T) {
 stash@{Tue Jan 14 19:13:06 2025}: On master: gitodo_7
 stash@{Tue Jan 18 10:11:12 2025}: WIP on master: 04fd51c update docs`
 
-	expected := map[int]string{7: "stash@{Tue Jan 14 19:13:06 2025}"}
-	got := ParseStashList(sample)
+	expected := map[int]StashItem{7: {Ref: "stash@{1}", Date: "Tue Jan 14 19:13:06 2025"}}
+	got := parseStashList(sample)
 	cmp := maps.Equal(expected, got)
 
 	if !cmp {

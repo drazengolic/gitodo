@@ -26,15 +26,20 @@ import (
 
 // pitchCmd represents the pitch command
 var pitchCmd = &cobra.Command{
-	Use:     "pitch branch_name [args...]",
+	Use:     "pitch branch_name [items...]",
 	Aliases: []string{"p"},
 	Short:   "Checkout branch and add items at one go",
 	Long: `
 Quickly checkout to a branch (or create a new one if it doesn't exist) and add
-to-do items via arguments, or with an editor if no arguments are provided.
+to-do items via arguments, or with an editor if no item arguments are provided.
 
 If --base flag is not provided, the current branch will be used as a starting
-point for the new branch.`,
+point for the new branch.
+
+If --stash is provided, any changes will be stashed before checking out. When
+there is an active to-do item, the stash will reference the item.
+
+Project name can be also set by setting the --name flag.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			fmt.Println("Branch name not provided in the arguments.")
@@ -42,6 +47,23 @@ point for the new branch.`,
 		}
 
 		env, tdb := MustInit()
+		activeProj := tdb.GetProject(tdb.FetchProjectId(env.ProjDir, env.Branch))
+
+		_, err := tdb.CheckTimer(activeProj.Id)
+		HandleTimerError(err)
+
+		// stash changes
+		if cmd.Flags().Changed("stash") {
+			todo := tdb.TodoWhat(activeProj.Id)
+			if todo == nil {
+				out, err := shell.PushStashNoItem()
+				fmt.Println(out)
+				ExitOnError(err, 1)
+			} else {
+				err := shell.PushStash(todo.Id)
+				ExitOnError(err, 1)
+			}
+		}
 
 		// checkout the (new) branch
 		envBranches, err := shell.ListBranches()
@@ -105,4 +127,5 @@ func init() {
 
 	pitchCmd.Flags().StringP("base", "b", "", "Starting point (base) for the new branch")
 	pitchCmd.Flags().StringP("name", "n", "", "Project name")
+	pitchCmd.Flags().BoolP("stash", "s", false, "Stash changes before checkout")
 }
