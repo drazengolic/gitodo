@@ -19,10 +19,8 @@ package shell
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"unicode"
 )
@@ -33,17 +31,10 @@ type TmpFile struct {
 	path string
 }
 
-func NewTmpFile(content io.WriterTo) (*TmpFile, error) {
-	f, err := os.CreateTemp("", tmpFilePref)
-
-	if err != nil {
-		return nil, err
-	}
-
-	content.WriteTo(f)
-	f.Close()
-
-	return &TmpFile{path: filepath.Join(os.TempDir(), f.Name())}, nil
+func NewItemsTmpFile() (*TmpFile, error) {
+	return NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
+# Comments like this are ignored.
+- `)
 }
 
 func NewTmpFileString(content string) (*TmpFile, error) {

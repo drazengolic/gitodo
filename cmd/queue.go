@@ -44,9 +44,7 @@ item.`,
 		if len(args) > 0 {
 			tdb.AddTodo(projId, strings.Join(args, " "))
 		} else {
-			tmpfile, err := shell.NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
-# Comments like this are ignored.
-- `)
+			tmpfile, err := shell.NewItemsTmpFile()
 			ExitOnError(err, 1)
 			err = tmpfile.Edit(env.Editor, 3)
 			ExitOnError(err, 1)

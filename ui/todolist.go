@@ -40,10 +40,17 @@ const (
 	ModeInput
 )
 
+type appMsg int
+
+const (
+	AppReset appMsg = iota
+	AppRefresh
+	AppExit
+)
+
 var (
 	// control channels
-	resetChan chan struct{}
-	exitChan  chan struct{}
+	appChan chan appMsg
 
 	// various styles
 	greenText = lipgloss.NewStyle().
@@ -73,8 +80,7 @@ var (
 )
 
 func init() {
-	resetChan = make(chan struct{})
-	exitChan = make(chan struct{})
+	appChan = make(chan appMsg)
 }
 
 // operations that need confirmation via prompt
@@ -223,7 +229,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// These keys should exit the program.
 		case "ctrl+c", "q", "Q":
-			go func() { exitChan <- struct{}{} }()
+			go func() { appChan <- AppExit }()
 			return m, nil
 
 		// moving up
@@ -423,7 +429,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			defer tmp.Delete()
-			defer func() { go func() { resetChan <- struct{}{} }() }()
+			defer func() { go func() { appChan <- AppReset }() }()
 
 			err = tmp.Edit(m.env.Editor, 0)
 			if err != nil {
@@ -439,6 +445,40 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.errorMsg = err.Error()
 			} else {
 				coll[m.cursor].task = txt
+			}
+
+		case "a", "A":
+			tmp, err := shell.NewItemsTmpFile()
+			if err != nil {
+				m.errorMsg = err.Error()
+				break
+			}
+
+			defer tmp.Delete()
+			defer func() { go func() { appChan <- AppRefresh }() }()
+
+			err = tmp.Edit(m.env.Editor, 0)
+			if err != nil {
+				m.errorMsg = err.Error()
+				break
+			}
+
+			items, err := tmp.ReadItems()
+
+			if err != nil {
+				m.errorMsg = err.Error()
+				break
+			}
+			if len(items) == 0 {
+				break
+			}
+
+			if m.mode == ModeTodoItems {
+				err = m.db.AddTodos(m.proj.Id, items)
+			} else if m.mode == ModeQueue {
+				err = m.db.AddTodos(m.queueProjId, items)
+			} else {
+				break
 			}
 
 		// move to/from queue
@@ -550,6 +590,10 @@ func (m model) View() string {
 }
 
 func (m model) Content() string {
+	if !m.ready {
+		return ""
+	}
+
 	builder := &strings.Builder{}
 
 	// to-do items section
@@ -676,7 +720,6 @@ func (m model) footerView() string {
 
 		if m.mode == ModeTodoItems {
 			keyMap = [][]string{
-				{"Quit", "Q"},
 				{"Up", "K"},
 				{"Down", "J"},
 				{"Toggle done", "⎵"},
@@ -688,15 +731,18 @@ func (m model) footerView() string {
 				{"Move to queue", "M"},
 				{"Stash", "S"},
 				{"Pop stash", "P"},
+				{"Add items", "A"},
+				{"Quit", "Q"},
 			}
 		} else {
 			keyMap = [][]string{
-				{"Quit", "Q"},
 				{"Up", "K"},
 				{"Down", "J"},
 				{"Make todo", "M"},
 				{"Edit", "E"},
 				{"Delete", "D"},
+				{"Add items", "A"},
+				{"Quit", "Q"},
 			}
 		}
 
@@ -709,7 +755,7 @@ func (m model) footerView() string {
 			}
 		}
 
-		rows := slices.Collect(slices.Chunk(keys, 4))
+		rows := slices.Collect(slices.Chunk(keys, 5))
 
 		t := table.New().
 			Width(m.viewport.Width).
@@ -798,18 +844,20 @@ func RunTodoListUI(env *shell.DirEnv, db *base.TodoDb) {
 	model := initialModel(env, db)
 	shouldRun := true
 
-	// restart or quit via channels
+	// restart or quit via channel
 	// because executing i.e. vim to edit stuff will mess up the alt screen
 	// and the only solution is to restart the ui program
 	go func() {
 		for {
-			select {
-			case <-resetChan:
+			switch <-appChan {
+			case AppRefresh:
+				model = initialModel(env, db)
 				p.Quit()
-			case <-exitChan:
+			case AppReset:
+				p.Quit()
+			case AppExit:
 				shouldRun = false
 				p.Quit()
-				break
 			}
 		}
 	}()

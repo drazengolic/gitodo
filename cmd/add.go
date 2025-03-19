@@ -52,9 +52,7 @@ list.`,
 			}
 			fmt.Printf("Added to-do item %q to %q\n", item, env.Branch)
 		} else {
-			tmpfile, err := shell.NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
-# Comments like this are ignored.
-- `)
+			tmpfile, err := shell.NewItemsTmpFile()
 			ExitOnError(err, 1)
 			err = tmpfile.Edit(env.Editor, 3)
 			ExitOnError(err, 1)

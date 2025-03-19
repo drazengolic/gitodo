@@ -77,9 +77,7 @@ variable to a desired path to the file.
 		HandleTimerError(err)
 
 		if count == 0 {
-			tmpfile, err := shell.NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
-# Comments like this are ignored.
-- `)
+			tmpfile, err := shell.NewItemsTmpFile()
 			ExitOnError(err, 1)
 			err = tmpfile.Edit(env.Editor, 3)
 			ExitOnError(err, 1)

@@ -98,9 +98,7 @@ Project name can be also set by setting the --name flag.`,
 			tdb.AddTodos(projId, args[1:])
 			itemCount = len(args) - 1
 		} else {
-			tmpfile, err := shell.NewTmpFileString(`# Start a line with a hyphen (-) to indicate a new item.
-# Comments like this are ignored.
-- `)
+			tmpfile, err := shell.NewItemsTmpFile()
 			ExitOnError(err, 1)
 			err = tmpfile.Edit(env.Editor, 3)
 			ExitOnError(err, 1)
