@@ -2,6 +2,8 @@
 
 To see what is gitodo and what can it do, [check here](gitodo.md).
 
+![screenshot](screenshot.png "gitodo")
+
 ## Installation
 
 Currently it's only possible to install the application via source.

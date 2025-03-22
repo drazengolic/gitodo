@@ -49,6 +49,7 @@ A minimalist tool that helps the busy developers to:
 All configuration is read from git and the environment, no yaml files needed.
 
 Running the application without arguments will either:
+
   - open up the editor to add items if none are found
   - open a TUI screen where to-do items can be managed
 
