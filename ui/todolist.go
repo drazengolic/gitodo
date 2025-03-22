@@ -357,7 +357,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			case opDelQueueItem:
 				index := int(m.pendingOp.(opDelQueueItem))
-				item := m.todoItems[index]
+				item := m.queueItems[index]
 				err := m.db.Delete(item.id)
 				if err == nil {
 					m.queueItems = slices.Delete(m.queueItems, index, index+1)
