@@ -68,5 +68,5 @@ the command execution.`,
 }
 
 func init() {
-	rootCmd.AddCommand(doneCmd)
+	RootCmd.AddCommand(doneCmd)
 }

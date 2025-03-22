@@ -34,5 +34,5 @@ Utility commands for managing data.
 }
 
 func init() {
-	rootCmd.AddCommand(utilCmd)
+	RootCmd.AddCommand(utilCmd)
 }

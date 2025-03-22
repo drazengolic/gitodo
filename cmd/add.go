@@ -70,6 +70,6 @@ list.`,
 }
 
 func init() {
-	rootCmd.AddCommand(addCmd)
+	RootCmd.AddCommand(addCmd)
 	addCmd.Flags().BoolP("top", "t", false, "put the item at the top of the list")
 }

@@ -104,7 +104,7 @@ Special flag handling:
 }
 
 func init() {
-	rootCmd.AddCommand(commitCmd)
+	RootCmd.AddCommand(commitCmd)
 	// all arguments are passed trough to git, so remove the flags from the doc
 	commitCmd.PersistentFlags().BoolP("help", "h", false, "Print usage")
 	commitCmd.PersistentFlags().Lookup("help").Hidden = true

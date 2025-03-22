@@ -249,7 +249,7 @@ func txtRender(txt string, style *lipgloss.Style, useStyle bool) string {
 }
 
 func init() {
-	rootCmd.AddCommand(reportCmd)
+	RootCmd.AddCommand(reportCmd)
 
 	reportCmd.Flags().BoolP("json", "j", false, "Print the report in JSON format")
 	reportCmd.Flags().StringP("from", "f", "", "From what time (RFC3339) to read data")

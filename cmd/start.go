@@ -51,5 +51,5 @@ changes. Only "queue" command is allowed.`,
 }
 
 func init() {
-	rootCmd.AddCommand(startCmd)
+	RootCmd.AddCommand(startCmd)
 }

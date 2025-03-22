@@ -61,5 +61,5 @@ item.`,
 }
 
 func init() {
-	rootCmd.AddCommand(queueCmd)
+	RootCmd.AddCommand(queueCmd)
 }

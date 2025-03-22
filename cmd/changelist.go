@@ -94,7 +94,7 @@ If using a pager is desirable, set the --pager flag.`,
 }
 
 func init() {
-	rootCmd.AddCommand(changelistCmd)
+	RootCmd.AddCommand(changelistCmd)
 
 	changelistCmd.Flags().BoolP("all", "a", false, "show all")
 	changelistCmd.Flags().BoolP("pager", "p", false, "use PAGER for output")

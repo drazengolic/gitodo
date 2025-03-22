@@ -121,7 +121,7 @@ Project name can be also set by setting the --name flag.`,
 }
 
 func init() {
-	rootCmd.AddCommand(pitchCmd)
+	RootCmd.AddCommand(pitchCmd)
 
 	pitchCmd.Flags().StringP("base", "b", "", "Starting point (base) for the new branch")
 	pitchCmd.Flags().StringP("name", "n", "", "Project name")

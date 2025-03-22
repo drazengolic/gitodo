@@ -88,5 +88,5 @@ the branch name.`,
 }
 
 func init() {
-	rootCmd.AddCommand(whatCmd)
+	RootCmd.AddCommand(whatCmd)
 }

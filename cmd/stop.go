@@ -69,5 +69,5 @@ And error is displayed if no timer is running.`,
 }
 
 func init() {
-	rootCmd.AddCommand(stopCmd)
+	RootCmd.AddCommand(stopCmd)
 }

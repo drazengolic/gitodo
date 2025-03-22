@@ -51,5 +51,5 @@ name (no text join will happen, so make sure to use quotes).`,
 }
 
 func init() {
-	rootCmd.AddCommand(nameCmd)
+	RootCmd.AddCommand(nameCmd)
 }

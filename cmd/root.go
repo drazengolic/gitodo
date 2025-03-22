@@ -27,8 +27,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+// RootCmd represents the base command when called without any subcommands
+var RootCmd = &cobra.Command{
 	Use:   "gitodo",
 	Short: "The stupid to-do list application for git projects",
 	Long: `
@@ -36,6 +36,7 @@ gitodo is a to-do list companion for git projects that ties to-do items to git
 repositories and branches without storing any files in the actual repositories.
 
 A minimalist tool that helps the busy developers to:
+
  - keep track of what they've done and what they need
    to do per branch
  - add ideas in the queue for later
@@ -112,14 +113,14 @@ var (
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
 }
 
 func init() {
-	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	RootCmd.CompletionOptions.DisableDefaultCmd = true
 }
 
 // MustInit collects data and creates instances necessary for the app to function
