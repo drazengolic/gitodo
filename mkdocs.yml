@@ -1,2 +1,8 @@
 site_name: gitodo docs
 theme: readthedocs
+repo_url: https://github.com/drazengolic/gitodo/
+docs_dir: docs-src
+site_dir: docs
+copyright: © Dražen Golić
+site_author: Dražen Golić
+site_description: gitodo - to-do ant time tracking for git projects
