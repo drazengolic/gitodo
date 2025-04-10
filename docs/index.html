@@ -131,7 +131,7 @@
     <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
       <li class="breadcrumb-item active">Welcome to gitodo docs</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/drazengolic/gitodo/edit/master/docs/index.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/drazengolic/gitodo/blob/master/docs-src/index.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -140,23 +140,23 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="welcome-to-gitodo-docs">Welcome to gitodo docs</h1>
-<p>To see what is gitodo and what can it do, <a href="gitodo/">check here</a>.</p>
+<p>To see what is gitodo and what can it do, <a href="gitodo/">check here</a>. You can also read about the motivation behind it's development in my blog post: <a href="https://www.drazengolic.com/blog/committing-upfront/">Committing upfront</a>.</p>
 <p><img alt="screenshot" src="screenshot.png" title="gitodo" /></p>
 <h2 id="installation">Installation</h2>
 <p>Currently it's only possible to install the application via source.</p>
 <h3 id="prerequisites">Prerequisites:</h3>
 <ol>
 <li><a href="https://go.dev/dl/">Go</a> 1.23.4 or newer</li>
-<li>A C compiler<ol>
+<li>GCC<ol>
 <li>MacOS: XCode, or type <code>xcode-select --install</code> in Terminal if you don't want the full app</li>
 <li>Linux: install <code>build-essential</code> package or equivalent</li>
-<li>Windows: MSYS2 package (<a href="https://medium.com/@freschiandrea86/how-to-use-go-and-cgo-in-windows-9014768d0f73">instructions</a>)</li>
+<li>Windows: install MSYS2 package in your PATH, or if you're using Scoop: <code>scoop install gcc</code></li>
 </ol>
 </li>
 </ol>
 <p>After the prerequisites are installed, execute the following command:</p>
 <p><code>go install github.com/drazengolic/gitodo@latest</code></p>
-<p>The application is tested on macOS and Ubuntu Linux. Windows version is not tested yet, and may have issues.</p>
+<p>The application is tested on macOS and Ubuntu Linux. It works on Windows as well, but it's kind of sluggish, and you must use the Windows Terminal.</p>
               
             </div>
           </div><footer>
@@ -210,5 +210,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-03-22 23:53:40.709133+00:00
+Build Date UTC : 2025-04-10 18:47:24.514855+00:00
 -->

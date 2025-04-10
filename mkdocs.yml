@@ -6,3 +6,4 @@ site_dir: docs
 copyright: © Dražen Golić
 site_author: Dražen Golić
 site_description: gitodo - to-do ant time tracking for git projects
+edit_uri: blob/master/docs-src/
